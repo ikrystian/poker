@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>♠ Texas Hold'em — gra online</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="lobby" class="overlay">
+  <form id="join-form" class="card-panel">
+    <h1>♠ Texas Hold'em</h1>
+    <p class="sub">Stół na 3 graczy. Podaj nazwę i kod stołu — reszta ekipy wpisuje ten sam kod.</p>
+    <label>Twoja nazwa
+      <input id="name" maxlength="16" placeholder="np. Krystian" required autocomplete="off">
+    </label>
+    <label>Kod stołu
+      <input id="table" maxlength="20" value="stol1" autocomplete="off">
+    </label>
+    <button type="submit">Usiądź przy stole</button>
+    <p id="join-error" class="error"></p>
+  </form>
+</div>
+
+<main id="game" hidden>
+  <header>
+    <span class="brand">♠ Texas Hold'em</span>
+    <span id="table-label" class="pill"></span>
+    <span id="hand-label" class="pill"></span>
+    <button id="leave" class="ghost">Wyjdź</button>
+  </header>
+
+  <section class="table-wrap">
+    <div class="rail">
+      <div class="felt">
+        <div class="watermark">♠ HOLD'EM ♦</div>
+        <div id="seats"></div>
+
+        <div class="center">
+          <div id="stage" class="stage"></div>
+          <div id="community" class="community"></div>
+          <div id="pot" class="pot"></div>
+          <div id="banner" class="banner"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="controls" class="controls"></section>
+
+  <aside class="side">
+    <div class="side-title">Przebieg gry</div>
+    <div id="log" class="log"></div>
+    <form id="chat-form">
+      <input id="chat" maxlength="140" placeholder="Napisz coś…" autocomplete="off">
+      <button type="submit">Wyślij</button>
+    </form>
+  </aside>
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
