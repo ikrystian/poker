@@ -11,6 +11,9 @@
   --blue: #3a7bb8;
   --red: #c1503f;
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+  /* Jednostka bazowa kart — cała geometria liczy się od niej. */
+  --card-w: 66px;
+  --card-sm-w: 48px;
 }
 
 * { box-sizing: border-box; }
@@ -18,9 +21,13 @@
 /* Klasy z własnym `display` wygrywają z domyślną regułą [hidden] przeglądarki. */
 [hidden] { display: none !important; }
 
+html { -webkit-text-size-adjust: 100%; }
+
 body {
   margin: 0;
   min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
   color: var(--text);
   font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   font-variant-numeric: tabular-nums;
@@ -86,6 +93,8 @@ input:focus {
 
 button {
   padding: 12px 20px;
+  min-height: 44px;          /* wygodny cel dotykowy */
+  touch-action: manipulation;
   font-size: 15px;
   font-weight: 600;
   font-family: inherit;
@@ -239,39 +248,49 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
 
 .card {
   position: relative;
-  width: 66px;
-  height: 94px;
-  border-radius: 8px;
+  width: var(--card-w);
+  height: calc(var(--card-w) * 1.42);
+  border-radius: calc(var(--card-w) * 0.12);
   background: linear-gradient(160deg, #fff, #e9e9df);
   color: #1b2530;
   box-shadow: 0 5px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
-  animation: deal 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
   flex: none;
 }
+
+/* Animujemy wyłącznie karty, które właśnie zostały rozdane — inaczej każda
+   aktualizacja stanu powodowałaby ponowne „wjeżdżanie" wszystkich kart. */
+.card.deal { animation: deal 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
 
 .card.red { color: #cc2b3d; }
 
 .card .corner {
   position: absolute;
-  top: 5px;
-  left: 6px;
+  top: calc(var(--card-w) * 0.07);
+  left: calc(var(--card-w) * 0.09);
   display: flex;
   flex-direction: column;
   align-items: center;
   line-height: 0.95;
   font-weight: 800;
-  font-size: 17px;
+  font-size: calc(var(--card-w) * 0.26);
 }
 
-.card .corner i { font-style: normal; font-size: 13px; }
-.card .corner.br { top: auto; left: auto; right: 6px; bottom: 5px; transform: rotate(180deg); }
+.card .corner i { font-style: normal; font-size: calc(var(--card-w) * 0.2); }
+
+.card .corner.br {
+  top: auto;
+  left: auto;
+  right: calc(var(--card-w) * 0.09);
+  bottom: calc(var(--card-w) * 0.07);
+  transform: rotate(180deg);
+}
 
 .card .pip {
   position: absolute;
   inset: 0;
   display: grid;
   place-items: center;
-  font-size: 34px;
+  font-size: calc(var(--card-w) * 0.52);
   opacity: 0.92;
 }
 
@@ -296,16 +315,12 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   transform: translateY(-4px);
 }
 
-.card.small { width: 48px; height: 68px; border-radius: 6px; }
-.card.small .corner { font-size: 13px; top: 4px; left: 5px; }
-.card.small .corner i { font-size: 10px; }
-.card.small .pip { font-size: 23px; }
+/* Karty przeciwników — ta sama geometria, mniejsza jednostka bazowa. */
+.card.small { --card-w: var(--card-sm-w); }
 .card.small.back { box-shadow: 0 4px 9px rgba(0, 0, 0, 0.45), inset 0 0 0 2px rgba(240, 224, 192, 0.85); }
 
-.card:nth-child(2) { animation-delay: 0.06s; }
-.card:nth-child(3) { animation-delay: 0.12s; }
-.card:nth-child(4) { animation-delay: 0.18s; }
-.card:nth-child(5) { animation-delay: 0.24s; }
+.card.deal:nth-child(2) { animation-delay: 0.06s; }
+.card.deal:nth-child(3) { animation-delay: 0.12s; }
 
 @keyframes deal {
   from { transform: translateY(-26px) rotate(-8deg); opacity: 0; }
@@ -333,7 +348,7 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   position: relative;
   display: inline-flex;
   width: max-content;
-  max-width: 100%;
+  max-width: 270px;
   align-items: center;
   gap: 10px;
   padding: 8px 12px 8px 8px;
@@ -568,18 +583,162 @@ input[type=range] {
 
 /* ============ responsywność ============ */
 
+/* ---- tablety i wąskie okna ---- */
+
 @media (max-width: 980px) {
+  :root { --card-w: 56px; --card-sm-w: 42px; }
+
   #game {
     height: auto;
-    grid-template-columns: 1fr;
+    min-height: 100dvh;
+    /* minmax(0,1fr) — bez tego stół rozpycha kolumnę ponad szerokość ekranu. */
+    grid-template-columns: minmax(0, 1fr);
     grid-template-areas: "head" "table" "ctrl" "side";
   }
+
+  .table-wrap { min-width: 0; }
+
   .side { height: 220px; }
-  .seat { width: 150px; }
-  .seat .name { font-size: 12px; }
-  .card { width: 52px; height: 74px; }
-  .card .pip { font-size: 26px; }
-  .card.small { width: 38px; height: 54px; }
-  .card.small .pip { font-size: 18px; }
+  .seat { width: 160px; }
+  .seat .name { font-size: 13px; }
   .controls button { min-width: 0; }
+
+  /* Panel akcji zawsze pod ręką, nawet po przewinięciu strony. */
+  .controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    background: rgba(11, 19, 15, 0.94);
+    padding-bottom: max(14px, env(safe-area-inset-bottom));
+  }
+}
+
+/* ---- telefony ---- */
+
+@media (max-width: 700px) {
+  :root { --card-w: min(11.5vw, 52px); --card-sm-w: min(8.6vw, 38px); }
+
+  body { font-size: 15px; }
+  #game { gap: 10px; padding: 8px; }
+  header { gap: 7px; flex-wrap: nowrap; }
+  .brand { font-size: 17px; flex: none; }
+  /* Kod stołu zostaje (trzeba go podać znajomym), numer rozdania ustępuje miejsca. */
+  .pill { flex: none; padding: 4px 9px; font-size: 11px; white-space: nowrap; }
+  #hand-label { display: none; }
+  header .ghost { flex: none; padding: 8px 12px; }
+
+  /* W pionie stół jest wyższy niż szerszy, a jego rozmiar wyznacza wysokość
+     ekranu — inaczej miejsca i karty nie mieszczą się w owalu. */
+  .rail {
+    width: min(100%, calc(52vh / 1.2), 470px);
+    height: auto;
+    max-height: none;
+    aspect-ratio: 1 / 1.2;
+    padding: 9px;
+    border-radius: 50% / 40%;
+  }
+
+  .felt { border-radius: 50% / 40%; }
+  .watermark { top: 6%; font-size: 11px; letter-spacing: 3px; }
+  .center { gap: 7px; }
+  .pot { order: -1; }            /* pula nad kartami — dalej od własnych kart */
+  .stage { font-size: 10px; letter-spacing: 2px; }
+  .community { gap: 5px; }
+  .pot { padding: 5px 12px; font-size: 13px; min-height: 28px; }
+  .banner { padding: 7px 14px; font-size: 13px; }
+
+  .seat { width: 124px; }
+  .seat-0 { top: 85%; }
+  .seat-1 { left: 26%; top: 23%; }
+  .seat-2 { left: 74%; top: 23%; }
+  .seat .hole { margin-bottom: -10px; min-height: 0; }
+  .seat-0 .hole { gap: 5px; margin-bottom: -8px; min-height: 0; }
+  .seat-box { max-width: 168px; padding: 5px 9px 5px 5px; gap: 7px; border-radius: 30px; }
+  .avatar { width: 30px; height: 30px; font-size: 13px; }
+  .seat .name { font-size: 12px; }
+  .seat .chips { font-size: 11px; }
+  .badge { margin-left: 3px; padding: 1px 5px; font-size: 8px; }
+  .dealer-btn { width: 20px; height: 20px; font-size: 9px; }
+  .chip-bet { padding: 2px 8px 2px 3px; font-size: 11px; }
+  .seat-0 .chip-bet { top: -28px; }
+  .seat-1 .chip-bet, .seat-2 .chip-bet { bottom: -26px; }
+  .status { font-size: 10px; }
+
+  /* Akcje: dwa pełne rzędy zamiast jednego ciasnego. */
+  .controls { gap: 8px; padding: 10px; border-radius: 14px; }
+  .controls button { flex: 1 1 42%; min-width: 0; padding: 12px 8px; font-size: 14px; }
+  .raise-group { flex: 1 1 100%; flex-wrap: wrap; justify-content: center; padding: 8px; gap: 8px; }
+  .raise-group button { flex: 1 1 100%; }
+  .quick { flex: 1 1 100%; }
+  .quick button { flex: 1; min-height: 38px; padding: 8px 4px; }
+  input[type=range] { flex: 1 1 60%; width: auto; height: 30px; }
+  .amount { flex: 0 0 78px; width: 78px; font-size: 16px; }
+  .kbd { display: none; }        /* brak klawiatury fizycznej */
+  .result { font-size: 12px; gap: 4px 12px; padding: 8px 10px; }
+
+  .side { height: 190px; }
+  .log { font-size: 12px; padding: 10px; }
+  .card-panel { padding: 24px 20px; }
+  .card-panel h1 { font-size: 25px; }
+  input { font-size: 16px; }     /* poniżej 16px iOS przybliża stronę przy focusie */
+}
+
+/* ---- telefon poziomo: bardzo niskie okno, rozmiar stołu wyznacza wysokość ---- */
+
+@media (max-height: 540px) and (orientation: landscape) {
+  :root { --card-w: min(5.4vw, 42px); --card-sm-w: min(4.2vw, 32px); }
+
+  #game {
+    height: 100dvh;
+    min-height: 0;
+    gap: 8px;
+    padding: 8px;
+    grid-template-columns: minmax(0, 1fr) 228px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: "head side" "table side" "ctrl side";
+  }
+
+  /* Szeroki, płaski owal: przy 390 px wysokości tylko taki mieści trzy miejsca
+     obok siebie, nie nachodząc na karty wspólne. */
+  .rail {
+    width: min(100%, calc(70vh * 2.1));
+    height: auto;
+    max-height: none;
+    aspect-ratio: 2.1 / 1;
+    padding: 7px;
+    border-radius: 50% / 46%;
+  }
+
+  .felt { border-radius: 50% / 46%; }
+  .watermark { display: none; }
+
+  /* Karty wspólne wyżej — dół stołu należy do własnego miejsca. */
+  .center { gap: 5px; justify-content: flex-start; padding-top: 7%; }
+  .pot { order: 0; padding: 3px 10px; font-size: 12px; min-height: 24px; }
+  .stage { font-size: 9px; letter-spacing: 2px; }
+
+  .seat { width: 124px; }
+  .seat-0 { top: 78%; }
+  .seat-1 { left: 16%; top: 32%; }
+  .seat-2 { left: 84%; top: 32%; }
+  .seat-box { max-width: 136px; padding: 4px 8px 4px 4px; gap: 6px; }
+  .seat .name { font-size: 12px; }
+  .seat .chips { font-size: 11px; }
+  .seat .hole, .seat-0 .hole { margin-bottom: -10px; min-height: 0; }
+  .avatar { width: 26px; height: 26px; font-size: 11px; }
+  .status { display: none; }
+  .chip-bet { font-size: 11px; padding: 2px 8px 2px 3px; }
+  .seat-0 .chip-bet { top: -24px; }
+  .seat-1 .chip-bet, .seat-2 .chip-bet { bottom: -22px; }
+
+  .controls { position: static; min-height: 0; padding: 8px; }
+  .controls button { flex: 0 1 auto; min-height: 40px; padding: 9px 14px; }
+  .raise-group { flex: 1 1 auto; flex-wrap: nowrap; padding: 5px 5px 5px 10px; }
+  .raise-group button { flex: 0 0 auto; }
+  .quick { flex: 0 0 auto; }
+  .quick button { min-height: 32px; }
+  input[type=range] { flex: 0 1 130px; height: 24px; }
+
+  .side { height: auto; }
+  .side-title { display: none; }
 }

@@ -44,6 +44,26 @@ npx localtunnel --port 3000     # albo: cloudflared tunnel --url http://localhos
 ## Funkcje aplikacji
 
 - Komunikacja w czasie rzeczywistym (Socket.IO) — stan stołu u wszystkich naraz.
+- Stół z perspektywy gracza: Twoje miejsce zawsze na dole, karty własne w pełnym rozmiarze.
+- Pierścień odliczający czas wokół awatara, żeton rozdającego, stosiki żetonów przy zakładach.
+- Po showdownie podświetlane jest pięć kart tworzących zwycięski układ (reszta wyszarzona).
+- Szybkie stawki (½ puli, ¾ puli, pula) i skróty klawiszowe: **F** pas, **C** sprawdzam/czekam,
+  **R** podbijam, **A** all-in.
+
+## Telefony
+
+Aplikacja jest w pełni grywalna na telefonie — nie wymaga instalacji, wystarczy przeglądarka.
+
+- Trzy układy: desktop, telefon w pionie (stół wyższy niż szerszy) i telefon w poziomie
+  (stół szeroki i płaski, panel historii z boku). Każdy przetestowany pod kątem tego,
+  by miejsca graczy i karty mieściły się w owalu stołu i nigdzie nie było przewijania w bok.
+- Karty skalują się płynnie względem szerokości ekranu (`--card-w`), więc pięć kart wspólnych
+  mieści się w rzędzie nawet na ekranie 360 px.
+- Przyciski akcji mają minimum 44 px wysokości, panel akcji jest „przyklejony" do dołu ekranu,
+  więc pozostaje pod ręką po przewinięciu do historii gry.
+- Pola liczbowe otwierają klawiaturę numeryczną, a czcionka pól to 16 px — dzięki temu iOS
+  nie przybliża strony przy kliknięciu w pole.
+- Uwzględniony bezpieczny margines dolny (`safe-area-inset`) na telefonach z paskiem gestów.
 - Karty przeciwników są zakryte; serwer nigdy nie wysyła cudzych kart przed showdownem.
 - Limit 45 s na ruch — po przekroczeniu automatycznie czekam (jeśli za darmo) albo pas.
 - Powrót do gry po odświeżeniu strony lub zerwaniu łącza (60 s na powrót na miejsce).

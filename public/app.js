@@ -71,9 +71,9 @@ const TURN_MS = 45000;
 
 const cardKey = (c) => `${c.r}${c.s}`;
 
-function cardEl(card, small, best) {
+function cardEl(card, small, best, animate) {
   const el = document.createElement('div');
-  el.className = 'card' + (small ? ' small' : '');
+  el.className = 'card' + (small ? ' small' : '') + (animate ? ' deal' : '');
   // Po showdownie wyróżniamy pięć kart zwycięskiego układu.
   if (best && card) el.classList.add(best.has(cardKey(card)) ? 'hl' : 'dim');
   if (card === undefined) { el.classList.add('slot'); return el; }
@@ -88,6 +88,9 @@ function cardEl(card, small, best) {
   return el;
 }
 
+let prevCommunity = 0;
+let prevHandNo = -1;
+
 function render(s) {
   const me = s.players.find((p) => p.id === s.you);
   const myIdx = s.players.indexOf(me);
@@ -100,12 +103,14 @@ function render(s) {
     : null;
 
   // Obracamy stół tak, by nasze miejsce było zawsze na dole.
+  const dealHole = s.handNo !== prevHandNo;   // karty własne animujemy raz na rozdanie
   const seats = $('#seats');
   seats.innerHTML = '';
   s.players.forEach((p, i) => {
     const pos = (i - myIdx + s.players.length) % s.players.length;
-    seats.appendChild(seatEl(p, pos, i, s, winners, winners.has(p.id) ? best : null));
+    seats.appendChild(seatEl(p, pos, i, s, winners, winners.has(p.id) ? best : null, dealHole));
   });
+  prevHandNo = s.handNo;
 
   $('#pot').innerHTML = `<i class="chip"></i>Pula ${s.pot}`;
   $('#pot').classList.toggle('on', s.pot > 0);
@@ -113,9 +118,12 @@ function render(s) {
   $('#hand-label').textContent = s.handNo ? `Rozdanie #${s.handNo}` : 'Oczekiwanie';
 
   // Pięć slotów — puste miejsca na karty wspólne rysujemy jako obrysy.
+  // Animujemy tylko karty, które doszły od poprzedniego renderu.
+  const fresh = s.community.length > prevCommunity ? prevCommunity : Infinity;
   const comm = $('#community');
   comm.innerHTML = '';
-  for (let i = 0; i < 5; i++) comm.appendChild(cardEl(s.community[i], false, best));
+  for (let i = 0; i < 5; i++) comm.appendChild(cardEl(s.community[i], false, best, i >= fresh));
+  prevCommunity = s.community.length;
 
   $('#banner').textContent = bannerText(s);
 
@@ -131,7 +139,7 @@ function bannerText(s) {
   return `${won[0].name} wygrywa ${won[0].won}${won[0].hand ? ` — ${won[0].hand}` : ''}`;
 }
 
-function seatEl(p, pos, idx, s, winners, best) {
+function seatEl(p, pos, idx, s, winners, best, dealHole) {
   const el = document.createElement('div');
   el.className = `seat seat-${pos}`;
   if (p.folded) el.classList.add('folded');
@@ -141,7 +149,7 @@ function seatEl(p, pos, idx, s, winners, best) {
   const hole = document.createElement('div');
   hole.className = 'hole';
   // Własne karty rysujemy w pełnym rozmiarze — mają być czytelne bez wysiłku.
-  for (const c of p.cards) hole.appendChild(cardEl(c, pos !== 0, best));
+  for (const c of p.cards) hole.appendChild(cardEl(c, pos !== 0, best, dealHole));
   el.appendChild(hole);
 
   const badges = [
@@ -243,6 +251,7 @@ function renderControls(s, me) {
     const num = document.createElement('input');
     num.type = 'number';
     num.className = 'amount';
+    num.inputMode = 'numeric';   // klawiatura numeryczna na telefonie
     Object.assign(num, { min: minRaiseTo, max: maxRaiseTo, value: minRaiseTo });
 
     range.oninput = () => { num.value = range.value; };
