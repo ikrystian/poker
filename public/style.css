@@ -341,6 +341,13 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
 .seat-1 { left: 16%; top: 27%; }
 .seat-2 { left: 84%; top: 27%; }
 
+/* Przy komplecie graczy przeciwnicy rozkładają się na trzech bokach owalu:
+   lewo — góra — prawo. Watermark ustąpiłby miejsca górnemu miejscu. */
+#seats.count-4 .seat-1 { left: 14%; top: 50%; }
+#seats.count-4 .seat-2 { left: 50%; top: 16%; }
+#seats.count-4 .seat-3 { left: 86%; top: 50%; }
+.felt:has(#seats.count-4) .watermark { display: none; }
+
 .seat .hole { display: flex; gap: 5px; justify-content: center; margin-bottom: -14px; min-height: 68px; }
 .seat-0 .hole { gap: 7px; margin-bottom: -8px; min-height: 94px; }
 
@@ -455,7 +462,7 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
 }
 
 .seat-0 .chip-bet { top: -34px; }
-.seat-1 .chip-bet, .seat-2 .chip-bet { bottom: -32px; }
+.seat-1 .chip-bet, .seat-2 .chip-bet, .seat-3 .chip-bet { bottom: -32px; }
 
 .chip {
   width: 16px;
@@ -651,6 +658,16 @@ input[type=range] {
   .seat-0 { top: 85%; }
   .seat-1 { left: 26%; top: 23%; }
   .seat-2 { left: 74%; top: 23%; }
+
+  /* Czterech graczy w pionie: przeciwnicy w łuku nad kartami wspólnymi.
+     Ich boksy zwężamy, żeby trzy miejsca zmieściły się obok siebie. */
+  #seats.count-4 .seat-1 { left: 20%; top: 25%; }
+  #seats.count-4 .seat-2 { left: 50%; top: 10%; }
+  #seats.count-4 .seat-3 { left: 80%; top: 25%; }
+  #seats.count-4 .seat:not(.seat-0) { width: 108px; }
+  #seats.count-4 .seat:not(.seat-0) .seat-box { max-width: 126px; padding: 4px 7px 4px 4px; gap: 5px; }
+  #seats.count-4 .seat:not(.seat-0) .avatar { width: 26px; height: 26px; font-size: 11px; }
+
   .seat .hole { margin-bottom: -10px; min-height: 0; }
   .seat-0 .hole { gap: 5px; margin-bottom: -8px; min-height: 0; }
   .seat-box { max-width: 168px; padding: 5px 9px 5px 5px; gap: 7px; border-radius: 30px; }
@@ -661,7 +678,7 @@ input[type=range] {
   .dealer-btn { width: 20px; height: 20px; font-size: 9px; }
   .chip-bet { padding: 2px 8px 2px 3px; font-size: 11px; }
   .seat-0 .chip-bet { top: -28px; }
-  .seat-1 .chip-bet, .seat-2 .chip-bet { bottom: -26px; }
+  .seat-1 .chip-bet, .seat-2 .chip-bet, .seat-3 .chip-bet { bottom: -26px; }
   .status { font-size: 10px; }
 
   /* Akcje: dwa pełne rzędy zamiast jednego ciasnego. */
@@ -721,6 +738,14 @@ input[type=range] {
   .seat-0 { top: 78%; }
   .seat-1 { left: 16%; top: 32%; }
   .seat-2 { left: 84%; top: 32%; }
+
+  /* Przy czterech graczach karty wspólne wracają na środek — górny bok owalu
+     jest potrzebny na czwarte miejsce. */
+  #seats.count-4 ~ .center { justify-content: center; padding-top: 0; gap: 4px; }
+  #seats.count-4 .seat-1 { left: 12%; top: 50%; }
+  #seats.count-4 .seat-2 { left: 50%; top: 14%; }
+  #seats.count-4 .seat-3 { left: 88%; top: 50%; }
+
   .seat-box { max-width: 136px; padding: 4px 8px 4px 4px; gap: 6px; }
   .seat .name { font-size: 12px; }
   .seat .chips { font-size: 11px; }
@@ -729,7 +754,7 @@ input[type=range] {
   .status { display: none; }
   .chip-bet { font-size: 11px; padding: 2px 8px 2px 3px; }
   .seat-0 .chip-bet { top: -24px; }
-  .seat-1 .chip-bet, .seat-2 .chip-bet { bottom: -22px; }
+  .seat-1 .chip-bet, .seat-2 .chip-bet, .seat-3 .chip-bet { bottom: -22px; }
 
   .controls { position: static; min-height: 0; padding: 8px; }
   .controls button { flex: 0 1 auto; min-height: 40px; padding: 9px 14px; }

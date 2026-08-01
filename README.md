@@ -1,7 +1,7 @@
-# ♠ Texas Hold'em — gra online dla 3 graczy
+# ♠ Texas Hold'em — gra online dla 4 graczy
 
-Aplikacja webowa do gry w pokera Texas Hold'em przez internet. Trzy osoby wchodzą
-na tę samą stronę, wpisują ten sam kod stołu i grają w czasie rzeczywistym.
+Aplikacja webowa do gry w pokera Texas Hold'em przez internet. Do czterech osób wchodzi
+na tę samą stronę, wpisuje ten sam kod stołu i gra w czasie rzeczywistym.
 
 ## Uruchomienie
 
@@ -45,6 +45,8 @@ npx localtunnel --port 3000     # albo: cloudflared tunnel --url http://localhos
 
 - Komunikacja w czasie rzeczywistym (Socket.IO) — stan stołu u wszystkich naraz.
 - Stół z perspektywy gracza: Twoje miejsce zawsze na dole, karty własne w pełnym rozmiarze.
+- Rozstawienie miejsc dopasowuje się do obsady: przy komplecie 4 graczy przeciwnicy
+  zajmują lewy bok, górę i prawy bok owalu.
 - Pierścień odliczający czas wokół awatara, żeton rozdającego, stosiki żetonów przy zakładach.
 - Po showdownie podświetlane jest pięć kart tworzących zwycięski układ (reszta wyszarzona).
 - Szybkie stawki (½ puli, ¾ puli, pula) i skróty klawiszowe: **F** pas, **C** sprawdzam/czekam,
@@ -78,7 +80,7 @@ server/game.js    — silnik: stan stołu, licytacja, pule, showdown
 server/index.js   — serwer HTTP + Socket.IO, pokoje, reconnect, zegar tury
 public/           — interfejs (bez frameworków)
 test/simulate.js  — testy silnika: ewaluator + tysiące losowych rozdań
-test/integration.js — test end-to-end na żywym serwerze (3 klienty)
+test/integration.js — test end-to-end na żywym serwerze (4 klienty)
 ```
 
 ## Testy

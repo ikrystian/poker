@@ -105,6 +105,8 @@ function render(s) {
   // Obracamy stół tak, by nasze miejsce było zawsze na dole.
   const dealHole = s.handNo !== prevHandNo;   // karty własne animujemy raz na rozdanie
   const seats = $('#seats');
+  // Rozstawienie miejsc zależy od liczby graczy (CSS: #seats.count-N .seat-M).
+  seats.className = `count-${s.players.length}`;
   seats.innerHTML = '';
   s.players.forEach((p, i) => {
     const pos = (i - myIdx + s.players.length) % s.players.length;

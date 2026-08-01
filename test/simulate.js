@@ -51,8 +51,9 @@ let handsPlayed = 0;
 const GAMES = Number(process.env.GAMES) || 400;
 for (let game = 0; game < GAMES; game++) {
   const t = new Table('test');
-  // Co trzecia gra na dwóch graczy — sprawdza układ heads-up (rozdający = SB).
-  const names = game % 3 === 0 ? ['Ala', 'Bartek'] : ['Ala', 'Bartek', 'Celina'];
+  // Rotujemy obsadę stołu: 2 (heads-up — rozdający jest SB), 3 i pełne 4 miejsca.
+  const ALL = ['Ala', 'Bartek', 'Celina', 'Daniel'];
+  const names = ALL.slice(0, 2 + (game % 3));
   names.forEach((n, i) => t.addPlayer(`p${i}`, n));
   const START_TOTAL = t.players.reduce((s, p) => s + p.chips, 0);
 

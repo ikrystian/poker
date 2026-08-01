@@ -5,7 +5,7 @@ export const STAGES = ['preflop', 'flop', 'turn', 'river', 'showdown'];
 const START_CHIPS = 1000;
 const SMALL_BLIND = 10;
 const BIG_BLIND = 20;
-const MAX_PLAYERS = 3;
+const MAX_PLAYERS = 4;
 const TURN_SECONDS = 45;
 
 export class Table {
@@ -31,7 +31,9 @@ export class Table {
   // ---------- gracze ----------
 
   addPlayer(id, name) {
-    if (this.players.length >= MAX_PLAYERS) return { error: 'Stół jest pełny (max 3 graczy).' };
+    if (this.players.length >= MAX_PLAYERS) {
+      return { error: `Stół jest pełny (max ${MAX_PLAYERS} graczy).` };
+    }
     if (this.players.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
       return { error: 'Gracz o tej nazwie już siedzi przy stole.' };
     }
@@ -120,7 +122,7 @@ export class Table {
     this.pushLog(`--- Rozdanie #${this.handNo} (rozdaje ${this.players[this.dealerIdx].name}) ---`);
 
     const inHand = this.seatsInHand();
-    // Heads-up: rozdający jest małym ciemnym. Przy 3 graczach: SB = dealer+1.
+    // Heads-up: rozdający jest małym ciemnym. Przy 3+ graczach: SB = dealer+1.
     const sbIdx = inHand.length === 2
       ? this.dealerIdx
       : this.nextIdx(this.dealerIdx, (p) => p.inHand);
