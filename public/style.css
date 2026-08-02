@@ -11,6 +11,8 @@
   --blue: #3a7bb8;
   --red: #c1503f;
   --shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+  /* Wspólna krzywa ruchu — lekkie „przestrzelenie" na końcu. */
+  --ease: cubic-bezier(0.2, 0.9, 0.3, 1.2);
   /* Jednostka bazowa kart — cała geometria liczy się od niej. */
   --card-w: 66px;
   --card-sm-w: 48px;
@@ -149,7 +151,14 @@ header { grid-area: head; display: flex; align-items: center; gap: 10px; }
 
 header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
 
-.table-wrap { grid-area: table; display: grid; place-items: center; min-height: 0; }
+.table-wrap {
+  grid-area: table;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  /* pas nad stołem na popiersie krupierki */
+  --dealer-h: clamp(46px, 9vh, 96px);
+}
 
 /* ============ stół ============ */
 
@@ -157,11 +166,42 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   position: relative;
   width: min(100%, 900px);
   aspect-ratio: 16 / 10;
+  margin-top: var(--dealer-h, 0px);
   max-height: 100%;
   padding: 18px;
   border-radius: 50% / 46%;
   background: linear-gradient(160deg, #6b452a, #3b2415 45%, #58371f);
   box-shadow: var(--shadow), inset 0 2px 6px rgba(255, 255, 255, 0.12);
+}
+
+/* W układzie desktopowym (nagłówek + stół + panel akcji w jednym ekranie)
+   `max-height` raila nie działa — jego wysokość bierze się z aspect-ratio.
+   Dlatego górny limit szerokości liczymy z wysokości okna: co zostaje po
+   nagłówku, panelu akcji, odstępach i pasie krupierki. */
+@media (min-width: 981px) {
+  .rail { width: min(100%, 900px, calc((100vh - 190px - var(--dealer-h, 0px)) * 1.6)); }
+}
+
+/* z-index: -1 chowa ją pod drewnianym railem — nad blat wystaje tylko popiersie.
+   Rozmiar i przesunięcie liczymy w % szerokości i własnej wysokości (nie wysokości
+   raila, bo ta wynika z aspect-ratio i nie zawsze rozwiązuje procenty). */
+.dealer {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  z-index: -1;
+  width: min(19%, 168px);
+  margin: 0;
+  transform: translate(-50%, -68%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.dealer img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 14px 26px rgba(0, 0, 0, 0.6));
 }
 
 .felt {
@@ -227,6 +267,7 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
 .pot.on { opacity: 1; }
 
 .banner {
+  position: relative;
   padding: 8px 20px;
   font-size: 14px;
   font-weight: 600;
@@ -234,32 +275,66 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   background: linear-gradient(180deg, #f0d68f, var(--gold));
   border-radius: 99px;
   box-shadow: 0 6px 20px rgba(216, 180, 94, 0.35);
-  animation: pop 0.35s ease-out;
+  overflow: hidden;
+}
+
+/* Po ogłoszeniu zwycięzcy przez planszę przebiega refleks światła. */
+.banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, 0.75) 50%, transparent 65%);
+  animation: shine 2.6s ease-in-out 0.3s infinite;
 }
 
 .banner:empty { display: none; }
 
-@keyframes pop {
-  from { transform: scale(0.85); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
 /* ============ karty ============ */
 
+/* Karta to bryła z dwiema ściankami obracana w 3D — odkrycie karty jest
+   prawdziwym obrotem, a nie podmianą tła. `--face` trzyma docelowy obrót,
+   dzięki czemu klatki animacji nie kłócą się ze stanem spoczynkowym. */
 .card {
   position: relative;
   width: var(--card-w);
   height: calc(var(--card-w) * 1.42);
-  border-radius: calc(var(--card-w) * 0.12);
-  background: linear-gradient(160deg, #fff, #e9e9df);
   color: #1b2530;
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
   flex: none;
+  transform-style: preserve-3d;
+  transform: rotateY(var(--face, 0deg));
 }
 
-/* Animujemy wyłącznie karty, które właśnie zostały rozdane — inaczej każda
-   aktualizacja stanu powodowałaby ponowne „wjeżdżanie" wszystkich kart. */
-.card.deal { animation: deal 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+.card.down { --face: 180deg; }
+
+.card .fc {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--card-w) * 0.12);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s;
+}
+
+.card .front {
+  background: linear-gradient(160deg, #fff, #e9e9df);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(0, 0, 0, 0.12);
+}
+
+.card .back {
+  transform: rotateY(180deg);
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.07) 0 5px, transparent 5px 10px),
+    linear-gradient(160deg, #8d2436, #5c1524);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 3px rgba(240, 224, 192, 0.85);
+}
+
+/* Animujemy wyłącznie karty, które właśnie zostały rozdane albo odkryte —
+   inaczej każda aktualizacja stanu powodowałaby ponowne „wjeżdżanie" kart. */
+.card.deal { animation: deal 0.44s cubic-bezier(0.15, 0.85, 0.3, 1.05) backwards; }
+.card.dealflip { animation: dealflip 0.78s cubic-bezier(0.2, 0.75, 0.3, 1) backwards; }
+.card.flip { animation: flip 0.55s cubic-bezier(0.4, 0.05, 0.25, 1) backwards; }
+/* Spasowane karty odsuwają się w stronę mucka i tam zostają. */
+.card.muck { animation: muck 0.45s cubic-bezier(0.3, 0.8, 0.4, 1) both; }
 
 .card.red { color: #cc2b3d; }
 
@@ -294,37 +369,72 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   opacity: 0.92;
 }
 
-.card.back {
-  background:
-    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.07) 0 5px, transparent 5px 10px),
-    linear-gradient(160deg, #8d2436, #5c1524);
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.45), inset 0 0 0 3px rgba(240, 224, 192, 0.85);
-}
-
-.card.slot {
+.card.slot .front {
   background: rgba(255, 255, 255, 0.05);
   border: 1px dashed rgba(255, 255, 255, 0.16);
   box-shadow: none;
-  animation: none;
 }
+
+.card.slot { animation: none; }
 
 .card.dim { filter: grayscale(0.75) brightness(0.6); }
 
-.card.hl {
-  box-shadow: 0 0 0 2px var(--gold), 0 6px 16px rgba(216, 180, 94, 0.4);
-  transform: translateY(-4px);
+/* Podniesienie i poświatę dajemy ściance, a nie karcie — obrót zostaje wolny. */
+.card.hl .front {
+  transform: translateY(-6px);
+  box-shadow: 0 0 0 2px var(--gold), 0 10px 20px rgba(216, 180, 94, 0.45);
+  animation: winglow 1.8s ease-in-out infinite;
 }
+
+.card.hl:nth-child(2) .front { animation-delay: 0.12s; }
+.card.hl:nth-child(3) .front { animation-delay: 0.24s; }
+.card.hl:nth-child(4) .front { animation-delay: 0.36s; }
+.card.hl:nth-child(5) .front { animation-delay: 0.48s; }
 
 /* Karty przeciwników — ta sama geometria, mniejsza jednostka bazowa. */
 .card.small { --card-w: var(--card-sm-w); }
-.card.small.back { box-shadow: 0 4px 9px rgba(0, 0, 0, 0.45), inset 0 0 0 2px rgba(240, 224, 192, 0.85); }
+.card.small .back { box-shadow: 0 4px 9px rgba(0, 0, 0, 0.45), inset 0 0 0 2px rgba(240, 224, 192, 0.85); }
 
-.card.deal:nth-child(2) { animation-delay: 0.06s; }
-.card.deal:nth-child(3) { animation-delay: 0.12s; }
+/* Głębia dla obrotów: bez perspektywy obrót w 3D wygląda jak zwykłe zwężanie. */
+.hole, .community { perspective: 900px; }
 
 @keyframes deal {
-  from { transform: translateY(-26px) rotate(-8deg); opacity: 0; }
-  to { transform: none; opacity: 1; }
+  from {
+    transform: translate(var(--dx, 0px), var(--dy, -30px)) rotate(var(--dr, 0deg)) rotateY(var(--face, 0deg)) scale(0.86);
+    opacity: 0;
+  }
+  to {
+    transform: translate(0, 0) rotate(0deg) rotateY(var(--face, 0deg)) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Karta leci od krupierki zakryta i dopiero na miejscu odsłania awers. */
+@keyframes dealflip {
+  0% {
+    transform: translate(var(--dx, 0px), var(--dy, -30px)) rotate(var(--dr, 0deg)) rotateY(180deg) scale(0.86);
+    opacity: 0;
+  }
+  22% { opacity: 1; }
+  55% { transform: translate(0, 0) rotate(0deg) rotateY(180deg) scale(1); opacity: 1; }
+  70% { transform: translate(0, 0) rotate(0deg) rotateY(180deg) scale(1.06); }
+  100% { transform: translate(0, 0) rotate(0deg) rotateY(0deg) scale(1); opacity: 1; }
+}
+
+@keyframes flip {
+  from { transform: rotateY(180deg) scale(1); }
+  45% { transform: rotateY(90deg) scale(1.07); }
+  to { transform: rotateY(0deg) scale(1); }
+}
+
+@keyframes muck {
+  from { transform: rotateY(var(--face, 0deg)) translateY(0) rotate(0deg); }
+  to { transform: rotateY(var(--face, 0deg)) translateY(10px) rotate(7deg); }
+}
+
+@keyframes winglow {
+  0%, 100% { box-shadow: 0 0 0 2px var(--gold), 0 10px 20px rgba(216, 180, 94, 0.45); }
+  50% { box-shadow: 0 0 0 2px #f4e3ae, 0 12px 34px rgba(216, 180, 94, 0.8); }
 }
 
 /* ============ miejsca ============ */
@@ -387,27 +497,41 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   position: absolute;
   inset: -4px;
   border-radius: 50%;
-  background: conic-gradient(var(--gold) var(--p, 100%), rgba(255, 255, 255, 0.12) 0);
+  background: conic-gradient(var(--ring, var(--gold)) var(--p, 100%), rgba(255, 255, 255, 0.12) 0);
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
 }
+
+/* Ostatnie sekundy na ruch: pierścień czerwienieje i zaczyna bić. */
+.seat.turn .avatar.urgent { --ring: #e0644d; animation: heartbeat 0.9s ease-in-out infinite; }
 
 .seat .meta { min-width: 0; }
 .seat .name { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .seat .chips { font-size: 13px; font-weight: 700; color: var(--gold); }
 
+/* Zmiana stanu konta mruga kolorem — od razu widać, komu przybyło. */
+.seat .chips.up { animation: chipsUp 0.8s ease-out; }
+.seat .chips.down { animation: chipsDown 0.6s ease-out; }
+
 .seat.turn .seat-box {
   border-color: var(--gold);
   box-shadow: 0 0 0 1px var(--gold-soft), 0 0 26px rgba(216, 180, 94, 0.35);
+  animation: turnGlow 2.2s ease-in-out infinite;
 }
 
 .seat.folded { opacity: 0.4; }
 .seat.folded .hole { filter: grayscale(1); }
+/* Po animacji spasowania karty zostają odsunięte — także przy kolejnych renderach. */
+.seat.folded .card { transform: rotateY(var(--face, 0deg)) translateY(10px) rotate(7deg); }
 
 .seat.winner .seat-box {
   border-color: #7ee0a8;
   box-shadow: 0 0 0 1px rgba(126, 224, 168, 0.5), 0 0 34px rgba(126, 224, 168, 0.45);
+  animation: winner 1.6s ease-in-out infinite;
 }
+
+/* Nowy gracz siada przy stole z lekkim odbiciem. */
+.seat.sit-in { animation: sitIn 0.45s var(--ease) backwards; }
 
 .badge {
   display: inline-block;
@@ -458,8 +582,10 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   border: 1px solid var(--line);
   border-radius: 99px;
   white-space: nowrap;
-  animation: pop 0.25s ease-out;
 }
+
+/* Stosik podskakuje tylko wtedy, gdy zakład właśnie urósł. */
+.chip-bet.bump { animation: betBump 0.4s var(--ease); }
 
 .seat-0 .chip-bet { top: -34px; }
 .seat-1 .chip-bet, .seat-2 .chip-bet, .seat-3 .chip-bet { bottom: -32px; }
@@ -588,6 +714,142 @@ input[type=range] {
 #chat-form input { margin: 0; }
 #chat-form button { min-width: 0; padding: 11px 16px; }
 
+/* ============ animacje ============ */
+
+/* Żetony lecące łukiem między miejscem a pulą (pozycję ustawia JS). */
+.fly-chip {
+  position: fixed;
+  z-index: 40;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.fly-chip.gold {
+  background: repeating-conic-gradient(#d8b45e 0 25deg, #fff6dd 25deg 50deg);
+  box-shadow: inset 0 0 0 3px #d8b45e, 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Fala rozchodząca się od miejsca kliknięcia w przycisku. */
+button { position: relative; overflow: hidden; }
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: ripple 0.5s ease-out forwards;
+}
+
+/* Panel akcji świeci, kiedy to nasz ruch. */
+.controls { transition: border-color 0.3s, box-shadow 0.3s; }
+
+.controls.mine {
+  border-color: var(--gold-soft);
+  box-shadow: 0 0 0 1px var(--gold-soft), 0 0 34px rgba(216, 180, 94, 0.16);
+}
+
+/* Świeży wpis w logu wjeżdża z boku — starsze zostają w spokoju. */
+.log div.fresh { animation: logIn 0.35s ease-out backwards; }
+
+/* Krupierka lekko się kołysze — stół nie wygląda na zamrożony. */
+.dealer img { animation: sway 7s ease-in-out infinite; transform-origin: 50% 100%; }
+
+/* Wejście do gry: lobby odjeżdża, stół się rozkłada. */
+.card-panel { animation: panelIn 0.5s var(--ease) backwards; }
+.overlay { transition: opacity 0.3s, backdrop-filter 0.3s; }
+.overlay.out { opacity: 0; pointer-events: none; }
+.overlay.out .card-panel { animation: panelOut 0.3s ease-in forwards; }
+
+#game.enter .rail { animation: tableIn 0.6s var(--ease) backwards; }
+#game.enter header,
+#game.enter .controls,
+#game.enter .side { animation: riseIn 0.5s ease-out backwards 0.12s; }
+
+@keyframes ripple {
+  to { transform: scale(1); opacity: 0; }
+}
+
+@keyframes riseIn {
+  from { opacity: 0; transform: translateY(12px); }
+}
+
+@keyframes logIn {
+  from { opacity: 0; transform: translateX(-10px); }
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(18px) scale(0.96); }
+}
+
+@keyframes panelOut {
+  to { opacity: 0; transform: translateY(-14px) scale(0.97); }
+}
+
+@keyframes tableIn {
+  from { opacity: 0; transform: translateY(26px) scale(0.93); }
+}
+
+@keyframes sitIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(0.75); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes betBump {
+  0% { transform: translateX(-50%) scale(0.7); opacity: 0; }
+  60% { transform: translateX(-50%) scale(1.12); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); opacity: 1; }
+}
+
+@keyframes turnGlow {
+  0%, 100% { box-shadow: 0 0 0 1px var(--gold-soft), 0 0 22px rgba(216, 180, 94, 0.3); }
+  50% { box-shadow: 0 0 0 1px var(--gold), 0 0 40px rgba(216, 180, 94, 0.6); }
+}
+
+@keyframes winner {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(126, 224, 168, 0.5), 0 0 30px rgba(126, 224, 168, 0.4); }
+  50% { box-shadow: 0 0 0 2px rgba(126, 224, 168, 0.9), 0 0 52px rgba(126, 224, 168, 0.75); }
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.12); }
+  60% { transform: scale(1); }
+}
+
+@keyframes chipsUp {
+  0% { color: #7ee0a8; transform: scale(1.25); }
+  40% { color: #7ee0a8; }
+  100% { color: var(--gold); transform: scale(1); }
+}
+
+@keyframes chipsDown {
+  0% { color: #e0644d; transform: scale(0.88); }
+  100% { color: var(--gold); transform: scale(1); }
+}
+
+@keyframes shine {
+  0% { transform: translateX(-120%); }
+  35%, 100% { transform: translateX(120%); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-1.1deg) translateY(0); }
+  50% { transform: rotate(1.1deg) translateY(-4px); }
+}
+
+/* Szanujemy ustawienie „ogranicz ruch" — zostają tylko zmiany stanu. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ============ responsywność ============ */
 
 /* ---- tablety i wąskie okna ---- */
@@ -647,6 +909,10 @@ input[type=range] {
 
   .felt { border-radius: 50% / 40%; }
   .watermark { top: 6%; font-size: 11px; letter-spacing: 3px; }
+
+  /* Na telefonie każdy piksel wysokości idzie na stół — krupierka odpada. */
+  .table-wrap { --dealer-h: 0px; }
+  .dealer { display: none; }
   .center { gap: 7px; }
   .pot { order: -1; }            /* pula nad kartami — dalej od własnych kart */
   .stage { font-size: 10px; letter-spacing: 2px; }
@@ -728,6 +994,8 @@ input[type=range] {
 
   .felt { border-radius: 50% / 46%; }
   .watermark { display: none; }
+  .table-wrap { --dealer-h: 0px; }
+  .dealer { display: none; }
 
   /* Karty wspólne wyżej — dół stołu należy do własnego miejsca. */
   .center { gap: 5px; justify-content: flex-start; padding-top: 7%; }

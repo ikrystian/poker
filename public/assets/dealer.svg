@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 300" width="260" height="300" role="img" aria-label="Pani krupier">
+  <title>Pani krupier</title>
+
+  <defs>
+    <linearGradient id="vest" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#243330"/>
+      <stop offset="1" stop-color="#0d1614"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0.2" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#3d2b23"/>
+      <stop offset="0.55" stop-color="#241812"/>
+      <stop offset="1" stop-color="#150d0a"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0.25" y1="0" x2="0.85" y2="1">
+      <stop offset="0" stop-color="#f0cba6"/>
+      <stop offset="1" stop-color="#dca87e"/>
+    </linearGradient>
+    <linearGradient id="shirt" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dde5e1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- włosy: tylna masa, spływa na ramiona -->
+  <path fill="url(#hair)" d="M130 26c-40 0-64 27-64 66 0 20 2 36-4 54-6 17-10 30-10 44h30l14-48h68l14 48h30c0-14-4-27-10-44-6-18-4-34-4-54 0-39-24-66-64-66z"/>
+
+  <!-- szyja + cień pod brodą -->
+  <path fill="url(#skin)" d="M111 128h38v46c0 12-38 12-38 0z"/>
+  <path fill="#c08e67" opacity=".45" d="M111 128h38v14c-13 8-25 8-38 0z"/>
+
+  <!-- ramiona i kamizelka -->
+  <path fill="url(#vest)" d="M104 168c-46 12-84 44-88 100-1 12-1 22-1 32h230c0-10 0-20-1-32-4-56-42-88-88-100l-26 22z"/>
+
+  <!-- biała koszula w dekolcie kamizelki -->
+  <path fill="url(#shirt)" d="M104 168l26 22 26-22c10 3 19 6 27 10-12 14-19 34-21 58l-1 64h-62l-1-64c-2-24-9-44-21-58 8-4 17-7 27-10z"/>
+
+  <!-- klapy kamizelki -->
+  <path fill="url(#vest)" d="M99 174c14 16 22 40 24 68l1 58h-30l-1-64c-2-24-9-44-21-58 8-2 17-3 27-4z"/>
+  <path fill="url(#vest)" d="M161 174c-14 16-22 40-24 68l-1 58h30l1-64c2-24 9-44 21-58-8-2-17-3-27-4z"/>
+  <path fill="none" stroke="#d8b45e" stroke-width="1.6" opacity=".55" d="M100 180c13 17 20 41 22 66M160 180c-13 17-20 41-22 66"/>
+
+  <!-- kołnierzyk -->
+  <path fill="#ffffff" d="M112 166l18 24-22 8-12-26z"/>
+  <path fill="#eef2ef" d="M148 166l-18 24 22 8 12-26z"/>
+
+  <!-- mucha -->
+  <path fill="#101b18" d="M129 190c0 0-13-11-22-11-3 0-4 3-4 11s1 11 4 11c9 0 22-11 22-11z"/>
+  <path fill="#101b18" d="M131 190c0 0 13-11 22-11 3 0 4 3 4 11s-1 11-4 11c-9 0-22-11-22-11z"/>
+  <rect x="123" y="182" width="14" height="16" rx="4" fill="#1b2a26"/>
+
+  <!-- twarz -->
+  <ellipse cx="88" cy="106" rx="7" ry="10" fill="url(#skin)"/>
+  <ellipse cx="172" cy="106" rx="7" ry="10" fill="url(#skin)"/>
+  <circle cx="88" cy="114" r="4" fill="#d8b45e"/>
+  <circle cx="172" cy="114" r="4" fill="#d8b45e"/>
+  <path fill="url(#skin)" d="M130 46c25 0 42 19 42 47 0 32-19 55-42 55s-42-23-42-55c0-28 17-47 42-47z"/>
+
+  <!-- grzywka -->
+  <path fill="url(#hair)" d="M130 40c28 0 44 20 45 46 1 8-1 14-3 18-2-14-6-22-12-27-13 6-38 9-56 2-6 5-11 13-13 25-2-4-4-10-3-18 2-26 14-46 42-46z"/>
+
+  <!-- brwi, oczy, usta -->
+  <path fill="none" stroke="#3a2820" stroke-width="3" stroke-linecap="round" d="M106 92c5-4 12-4 17-1M137 91c5-3 12-3 17 1"/>
+  <ellipse cx="114" cy="103" rx="8" ry="5" fill="#fff"/>
+  <ellipse cx="146" cy="103" rx="8" ry="5" fill="#fff"/>
+  <circle cx="114" cy="103" r="3.4" fill="#3b2a1f"/>
+  <circle cx="146" cy="103" r="3.4" fill="#3b2a1f"/>
+  <path fill="none" stroke="#2a1c15" stroke-width="1.8" stroke-linecap="round" d="M106 100c4-5 12-6 16-2M140 98c4-4 12-3 16 2"/>
+  <path fill="none" stroke="#c99a72" stroke-width="2" stroke-linecap="round" d="M130 108v10c0 3-2 4-5 4"/>
+  <path fill="#b5544e" d="M130 128c6 0 11-2 14-3-2 7-7 11-14 11s-12-4-14-11c3 1 8 3 14 3z"/>
+  <ellipse cx="102" cy="116" rx="7" ry="4" fill="#dd9a86" opacity=".35"/>
+  <ellipse cx="158" cy="116" rx="7" ry="4" fill="#dd9a86" opacity=".35"/>
+</svg>

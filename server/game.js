@@ -6,7 +6,7 @@ const START_CHIPS = 1000;
 const SMALL_BLIND = 10;
 const BIG_BLIND = 20;
 const MAX_PLAYERS = 4;
-const TURN_SECONDS = 45;
+const TURN_SECONDS = 20;
 
 export class Table {
   constructor(id) {
