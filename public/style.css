@@ -312,7 +312,6 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
   border-radius: calc(var(--card-w) * 0.12);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-  transition: transform 0.25s var(--ease), box-shadow 0.25s;
 }
 
 .card .front {
