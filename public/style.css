@@ -398,27 +398,31 @@ header .ghost { margin-left: auto; padding: 8px 16px; font-size: 13px; }
 /* Głębia dla obrotów: bez perspektywy obrót w 3D wygląda jak zwykłe zwężanie. */
 .hole, .community { perspective: 900px; }
 
+/* Uwaga: żadna klatka nie rusza `opacity` — przezroczystość spłaszcza bryłę
+   (przeglądarka wyłącza wtedy preserve-3d) i zamiast rewersu widać w locie
+   awers. Karta czekająca na swoją kolej znika więc przez `visibility`,
+   które warstw 3D nie spłaszcza (klatka 0% trzyma ją przez `backwards`). */
 @keyframes deal {
   from {
+    visibility: hidden;
     transform: translate(var(--dx, 0px), var(--dy, -30px)) rotate(var(--dr, 0deg)) rotateY(var(--face, 0deg)) scale(0.86);
-    opacity: 0;
   }
   to {
+    visibility: visible;
     transform: translate(0, 0) rotate(0deg) rotateY(var(--face, 0deg)) scale(1);
-    opacity: 1;
   }
 }
 
 /* Karta leci od krupierki zakryta i dopiero na miejscu odsłania awers. */
 @keyframes dealflip {
   0% {
+    visibility: hidden;
     transform: translate(var(--dx, 0px), var(--dy, -30px)) rotate(var(--dr, 0deg)) rotateY(180deg) scale(0.86);
-    opacity: 0;
   }
-  22% { opacity: 1; }
-  55% { transform: translate(0, 0) rotate(0deg) rotateY(180deg) scale(1); opacity: 1; }
+  1% { visibility: visible; }
+  55% { transform: translate(0, 0) rotate(0deg) rotateY(180deg) scale(1); }
   70% { transform: translate(0, 0) rotate(0deg) rotateY(180deg) scale(1.06); }
-  100% { transform: translate(0, 0) rotate(0deg) rotateY(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(0, 0) rotate(0deg) rotateY(0deg) scale(1); }
 }
 
 @keyframes flip {
