@@ -52,6 +52,28 @@ npx localtunnel --port 3000     # albo: cloudflared tunnel --url http://localhos
 - Szybkie stawki (½ puli, ¾ puli, pula) i skróty klawiszowe: **F** pas, **C** sprawdzam/czekam,
   **R** podbijam, **A** all-in.
 
+## Animacje
+
+Stół żyje: każda zmiana stanu ma swoją animację, ale wyłącznie ta, która naprawdę zaszła —
+klient porównuje nowy stan z poprzednim, więc odświeżenie danych nie odpala wszystkiego od nowa.
+
+- **Rozdawanie** — karty wylatują od krupierki, jedna po drugiej, kolejką dookoła stołu.
+  Karty przeciwników lądują zakryte, własne i wspólne dolatują zakryte i obracają się na awers.
+- **Odkrywanie po showdownie** — obrót w 3D (karta ma awers i rewers), z opóźnieniem
+  narastającym po kolejnych miejscach.
+- **Żetony** — po zamknięciu rundy licytacji stosiki lecą łukiem do puli, a po rozdaniu
+  złote żetony wracają z puli do zwycięzcy. Stan konta mruga na zielono/czerwono.
+- **Pas** — karty spasowanego gracza odsuwają się w stronę mucka i tam zostają.
+- **Stół i panel** — pulsujący ślad kolejki, pierścień czasu czerwieniejący w ostatnich
+  5 sekundach, refleks światła na ogłoszeniu zwycięzcy, kaskadowe wejście przycisków akcji,
+  wjeżdżające wpisy w historii gry.
+- Wszystko wyłącza się przy systemowym ustawieniu „ogranicz ruch"
+  (`prefers-reduced-motion`) — zostają same zmiany stanu.
+
+Uwaga dla rozwijających kod: klatki animacji kart nie mogą ruszać `opacity` — przezroczystość
+spłaszcza kontekst 3D (`preserve-3d` przestaje działać) i w locie widać awers zamiast rewersu.
+Kartę ukrywa się przez `visibility`.
+
 ## Telefony
 
 Aplikacja jest w pełni grywalna na telefonie — nie wymaga instalacji, wystarczy przeglądarka.
